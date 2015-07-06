@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+<style>
+{% block css %}
+.reply_comment {
+	display: none;
+}
+{% endblock %}
+</style>
+
+<script>
+$(document).ready(function(){
+{% block js %}
+
+var video = $('#main_video > iframe');
+var video_parent = video.parent()
+var video_width = $('iframe').width();
+var video_height = $('iframe').height() * 0.87;
+
+function update_iframe_size(){
+	var ratio = parseInt(video_height)/parseInt(video_width);
+	var video_new_height = parseInt(video_parent.width()) * ratio;
+	$('iframe').css({'width':video_parent.width(), 'height':video_new_height});
+}
+
+update_iframe_size()
+$(window).bind('resize',function(){
+	update_iframe_size()
+});
+
+$('.reply_btn').click(function(e){
+	e.preventDefault();
+	$(this).siblings('.reply_comment').fadeToggle();
+});
+
+{% endblock %}
+});
+</script>
+
+{% block content %}
+<div class="row">
+	<div class="col-xs-12">
+		<div class="btn-group pull-right" role="group">
+			<a href="{{ obj.get_prev_url }}" class="btn btn-default"><span class="glyphicon glyphicon-step-backward" aria-hidden="true"></span> Prev</a>
+			<a href="{{ obj.get_next_url }}"class="btn btn-default">Next <span class="glyphicon glyphicon-step-forward" aria-hidden="true"></span></a>
+		</div>
+		<h1 class='pull-left'>{{ obj.title }}</h1>
+	</div>
+</div>
+<hr>
+<div class="col-sm-12" id='main_video'>
+{{ obj.safe_embed }}
+</div>
+<div class="col-sm-12">
+{% if obj.tags.all %}
+<div class="tags pull-left">
+	<ul class="list-inline">
+	<li>Tags:</li>
+	{% for tag in obj.tags.all %}
+		<li><a href=""><span class="label label-default">{{ tag.tag }}</span></a></li>
+	{% endfor %}
+	</ul>
+</div>
+{% endif%}
+
+<!-- change links to icons later. use fontawesome -->
+<div class="share-links pull-right">
+<a target="_blank" href="https://www.facebook.com/sharer/sharer.php?u={{ obj.get_full_url }}"><i class="fa fa-facebook-square fa-2x"></i></a>
+<a target="_blank" href="https://twitter.com/home?status={{ obj.get_share_message }}"><i class="fa fa-twitter-square fa-2x"></i></a>
+<a target="_blank" href="https://www.linkedin.com/shareArticle?mini=true&url={{ obj.get_full_url }}&title={{ obj.get_share_message }}&summary={{ obj.get_share_message }}&source={{ obj.get_full_url }}"><i class="fa fa-linkedin-square fa-2x"></i></a>
+</div>
+</div>
+<hr />
+<div class="row">
+	<div class="col-sm-12">
+		<h1>Comments/Questions</h1>
+		{% if user.is_authenticated %}
+		<form action="{% url 'comment_create' %}" method="POST"> {% csrf_token %}
+			{{ comment_form|crispy }}
+			<input type="hidden" name="video_id" value="{{ obj.id }}" />
+			<input type="hidden" name="origin_path" value="{{ request.get_full_path }}" />
+			<input type="submit" value="Add comment" class="btn btn-primary btn-sm" />
+		</form>
+		<br />
+		<br />
+		<table class="table">
+		{% for comment in comments %}
+			<tr>
+				<td>
+				{{ comment.text }}<br /><small>via <a href="">{{ comment.user }}</a> | <abbr title="{{ comment.timestamp}}">{{ comment.timestamp|timesince}}</abbr></small>
+				<ul>
+				{% for child in comment.get_children %}
+					<li>{{ child.text }}<br /><small>via <a href="">{{ child.user }}</a> | <abbr title="{{ child.timestamp}}">{{ child.timestamp|timesince}}</abbr></small></li>
+				{% endfor %}
+				</ul>
+				<a href="#" class="reply_btn">Reply</a> | <a href="{{ comment.get_absolute_url }}">View Thread({{comment.get_children.count}})</a>
+				<div class="reply_comment">
+					<form action="{% url 'comment_create' %}" method="POST"> {% csrf_token %}
+						{{ comment_form|crispy }}
+						<input type="hidden" name="parent_id" value="{{ comment.id }}" />
+						<input type="hidden" name="video_id" value="{{ obj.id }}" />
+						<input type="hidden" name="origin_path" value="{{ comment.get_absolute_url }}" />
+						<input type="submit" value="Add reply" class="btn btn-primary btn-sm" />
+					</form>
+				</div>
+				</td>
+			</tr>
+		{% endfor %}
+		</table>
+		{% else %}
+		<p class="text-center">Please <a href="{% url 'login' %}?next={{ obj.get_absolute_url }}">Login</a> or <a href="{% url 'register' %}">Join</a> to comment.</p>
+		{% endif %}
+	</div>
+</div>
+{% endblock %}

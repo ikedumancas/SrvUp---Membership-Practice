@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+<style>
+{% block css %}
+
+{% endblock %}
+</style>
+
+<script>
+$(document).ready(function(){
+{% block js %}
+	braintree.setup("{{ client_token }}", "dropin", {
+		container: "checkout",
+		form: "checkoutForm",
+	});
+	$("#submitPayment").on("click", function(){
+		var btn = $(this).button("loading");
+		setTimeout(function(){
+			btn.button('reset');
+		}, 5000)
+	});
+{% endblock %}
+});
+</script>
+
+{% block content %}
+<div class="col-sm-4">
+	<form action="." id="checkoutForm", method="POST"> {% csrf_token %}
+		<div id="checkout" style="min-height:200px;"></div>
+		<input id="submitPayment" type="submit" data-loading-text="Upgrading..." value="Complete upgrade" class="btn btn-primary btn-block" autocomplete="off" />
+	</form>
+</div>
+{% endblock %}
+

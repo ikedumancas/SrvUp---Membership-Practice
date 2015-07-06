@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+<style>
+{% block css %}
+
+
+
+{% endblock %}
+</style>
+
+<script>
+$(document).ready(function(){
+{% block js %}
+
+
+
+{% endblock %}
+});
+</script>
+
+{% block content %}
+<a href="{{ comment.origin }}">Go Back</a>
+<table class="table">
+	<tr>
+		<td>
+		{{ comment.text }}<br /><small>via <a href="">{{ comment.user }}</a> | <abbr title="{{ comment.timestamp}}">{{ comment.timestamp|timesince}}</abbr></small>
+		<ul>
+		{% for child in comment.get_children %}
+			<li>{{ child.text }}<br /><small>via <a href="">{{ child.user }}</a> | <abbr title="{{ child.timestamp}}">{{ child.timestamp|timesince}}</abbr></small></li>
+		{% endfor %}
+		</ul>
+		<div class="reply_comment">
+			<form action="{% url 'comment_create' %}" method="POST"> {% csrf_token %}
+				{{ comment_form|crispy }}
+				<input type="hidden" name="parent_id" value="{{ comment.id }}" />
+				<input type="submit" value="Add reply" class="btn btn-primary btn-sm">
+			</form>
+		</div>
+		</td>
+	</tr>
+</table>
+
+{% endblock %}
+

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+<style>
+{% block css %}
+
+{% endblock %}
+</style>
+
+{% block content %}
+{% if queryset %}
+	<div class="row">
+	{% for item in queryset %}
+	{% if forloop.counter0|divisibleby:3 %}
+	</div><div class="row">
+	{% endif %}
+	<div class="col-xs-4">
+		<h2><a href="{{ item.get_absolute_url }}">{{ item.title }}</a></h2>
+		<a href="{{ item.get_absolute_url }}"><img src="{{ item.get_image_url }}" class="img-responsive" alt="Image"></a>
+	</div>
+	{% endfor %}
+	</div>
+{% endif %}
+{% endblock %}

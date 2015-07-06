@@ -1,0 +1,26 @@
+body {
+  min-height: 1000px;
+}
+table.table {
+	border-top: 2px solid #555;
+}
+.navbar-static-top {
+  margin-bottom: 19px;
+}
+.tags .list-inline li{
+	padding: 0;
+}
+.tags .list-inline li a:hover {
+	text-decoration: none;
+}
+.tags .list-inline li a:hover .label-default {
+	background-color: #343434;
+}
+#notification_dropdown_container {
+	max-width: 400px;
+}
+#notification_dropdown_toggler #notifications_count {
+	top: -9px;
+	left: 9px;
+	position: absolute;
+}

@@ -1,0 +1,10 @@
+abbr {
+	cursor: pointer;
+}
+body {
+  min-height: 1000px;
+}
+
+.navbar-static-top {
+  margin-bottom: 19px;
+}
